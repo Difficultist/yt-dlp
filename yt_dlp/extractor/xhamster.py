@@ -60,9 +60,25 @@ class _ByteGenerator:
         s = to_signed_32(s * to_signed_32(0xc2b2ae3d))
         return to_signed_32(s ^ ((s & 0xFFFFFFFF) >> 16))
 
+    def _algo4(self, s):
+        # Custom scrambling function involving a left rotation (ROL)
+        s = self._s = to_signed_32(s + 0x6d2b79f5)
+        s = to_signed_32((s << 7) | ((s & 0xFFFFFFFF) >> 25))  # ROL 7
+        s = to_signed_32(s + 0x9e3779b9)
+        s = to_signed_32(s ^ ((s & 0xFFFFFFFF) >> 11))
+        s = to_signed_32(s * 0x27d4eb2d)
+        return s
+
+    def _algo5(self, s):
+        # xorshift variant with a final addition
+        s = to_signed_32(s ^ (s << 7))
+        s = to_signed_32(s ^ ((s & 0xFFFFFFFF) >> 9))
+        s = to_signed_32(s ^ (s << 8))
+        s = self._s = to_signed_32(s + 0xa5a5a5a5)
+        return s
+
     def __next__(self):
         return self._algorithm(self._s) & 0xFF
-
 
 class XHamsterIE(InfoExtractor):
     _DOMAINS = r'(?:xhamster\.(?:com|one|desi)|xhms\.pro|xhamster\d+\.(?:com|desi)|xhday\.com|xhvid\.com)'
